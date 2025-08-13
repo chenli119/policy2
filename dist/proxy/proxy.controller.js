@@ -11,11 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProxyController = void 0;
 const common_1 = require("@nestjs/common");
-const express_1 = require("express");
 const proxy_service_1 = require("./proxy.service");
 let ProxyController = class ProxyController {
     constructor(proxyService) {
@@ -62,7 +60,7 @@ __decorate([
     (0, common_1.Options)(),
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_a = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _a : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ProxyController.prototype, "handleOptions", null);
 __decorate([
@@ -72,7 +70,7 @@ __decorate([
     __param(2, (0, common_1.Res)()),
     __param(3, (0, common_1.Headers)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_b = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _b : Object, typeof (_c = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _c : Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProxyController.prototype, "handleGet", null);
 __decorate([
@@ -83,7 +81,7 @@ __decorate([
     __param(3, (0, common_1.Res)()),
     __param(4, (0, common_1.Headers)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, typeof (_d = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _d : Object, typeof (_e = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _e : Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProxyController.prototype, "handlePost", null);
 __decorate([
@@ -94,7 +92,7 @@ __decorate([
     __param(3, (0, common_1.Res)()),
     __param(4, (0, common_1.Headers)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, typeof (_f = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _f : Object, typeof (_g = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _g : Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProxyController.prototype, "handlePut", null);
 __decorate([
@@ -104,7 +102,7 @@ __decorate([
     __param(2, (0, common_1.Res)()),
     __param(3, (0, common_1.Headers)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_h = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _h : Object, typeof (_j = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _j : Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProxyController.prototype, "handleDelete", null);
 __decorate([
@@ -115,7 +113,7 @@ __decorate([
     __param(3, (0, common_1.Res)()),
     __param(4, (0, common_1.Headers)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, typeof (_k = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _k : Object, typeof (_l = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _l : Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProxyController.prototype, "handlePatch", null);
 exports.ProxyController = ProxyController = __decorate([
