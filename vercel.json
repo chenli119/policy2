@@ -1,13 +1,6 @@
 {
   "version": 2,
   "framework": null,
-  "builds": [
-    {
-      "src": "dist/main.js",
-      "use": "@vercel/node"
-    }
-  ],
-
   "env": {
     "NODE_ENV": "production"
   },
@@ -16,6 +9,7 @@
   "installCommand": "npm install",
   "functions": {
     "dist/main.js": {
+      "runtime": "nodejs18.x",
       "maxDuration": 30,
       "memory": 1024
     }
