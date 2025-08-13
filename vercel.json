@@ -9,7 +9,6 @@
   "installCommand": "npm install",
   "functions": {
     "dist/main.js": {
-      "runtime": "nodejs18.x",
       "maxDuration": 30,
       "memory": 1024
     }
