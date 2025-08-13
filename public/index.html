@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS 代理服务测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="url"] {
+            width: 400px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .result {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid #007acc;
+        }
+        .error {
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 CORS 代理服务测试页面</h1>
+    
+    <div class="container">
+        <h2>测试代理请求</h2>
+        <p>输入要测试的 URL，点击测试按钮查看结果：</p>
+        
+        <div>
+            <input type="url" id="testUrl" placeholder="https://api.example.com/data" value="https://jsonplaceholder.typicode.com/posts/1">
+            <button onclick="testProxy()">测试 GET 请求</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <div class="container">
+        <h2>使用说明</h2>
+        <p>将此代理服务部署到 Vercel 后，你可以这样使用：</p>
+        <pre><code>// 原本跨域的请求
+fetch('https://api.example.com/data') // ❌ 跨域错误
+
+// 使用代理服务
+fetch('https://your-proxy.vercel.app/api/proxy?url=https://api.example.com/data') // ✅ 成功</code></pre>
+    </div>
+    
+    <div class="container">
+        <h2>部署步骤</h2>
+        <ol>
+            <li>将项目推送到 GitHub</li>
+            <li>在 <a href="https://vercel.com" target="_blank">Vercel</a> 中导入项目</li>
+            <li>点击部署</li>
+            <li>获得你的代理服务 URL</li>
+        </ol>
+    </div>
+
+    <script>
+        async function testProxy() {
+            const url = document.getElementById('testUrl').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!url) {
+                resultDiv.innerHTML = '<div class="result error">请输入要测试的 URL</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="result">正在测试...</div>';
+            
+            try {
+                // 构建代理 URL
+                const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.text();
+                
+                let formattedData;
+                try {
+                    formattedData = JSON.stringify(JSON.parse(data), null, 2);
+                } catch {
+                    formattedData = data;
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="result">
+                        <h3>✅ 请求成功</h3>
+                        <p><strong>状态码:</strong> ${response.status}</p>
+                        <p><strong>响应数据:</strong></p>
+                        <pre>${formattedData}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ 请求失败</h3>
+                        <p><strong>错误信息:</strong> ${error.message}</p>
+                        <p>可能的原因：</p>
+                        <ul>
+                            <li>目标 URL 无法访问</li>
+                            <li>网络连接问题</li>
+                            <li>代理服务未正确部署</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载时显示当前域名信息
+        window.onload = function() {
+            const currentDomain = window.location.origin;
+            console.log('当前代理服务地址:', currentDomain);
+        }
+    </script>
+</body>
+</html>
