@@ -1,0 +1,49 @@
+const { NestFactory } = require('@nestjs/core');
+const { AppModule } = require('../dist/app.module');
+
+let app;
+
+/**
+ * 初始化NestJS应用
+ * @returns {Promise<any>} NestJS应用实例
+ */
+async function createNestApplication() {
+  if (!app) {
+    app = await NestFactory.create(AppModule);
+    app.enableCors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cache-Control']
+    });
+    await app.init();
+  }
+  return app;
+}
+
+/**
+ * Vercel Serverless Function处理器
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ * @returns {Promise<void>}
+ */
+module.exports = async (req, res) => {
+  try {
+    const nestApp = await createNestApplication();
+    const httpAdapter = nestApp.getHttpAdapter();
+    
+    // 处理预检请求
+    if (req.method === 'OPTIONS') {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Cache-Control');
+      res.setHeader('Access-Control-Max-Age', '86400');
+      return res.status(200).end();
+    }
+    
+    // 将Vercel请求转发给NestJS
+    return httpAdapter.getInstance()(req, res);
+  } catch (error) {
+    console.error('NestJS应用启动错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+};
