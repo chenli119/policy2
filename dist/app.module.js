@@ -10,13 +10,14 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const proxy_controller_1 = require("./proxy/proxy.controller");
 const proxy_service_1 = require("./proxy/proxy.service");
+const root_proxy_controller_1 = require("./root-proxy.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [],
-        controllers: [proxy_controller_1.ProxyController],
+        controllers: [proxy_controller_1.ProxyController, root_proxy_controller_1.RootProxyController],
         providers: [proxy_service_1.ProxyService],
     })
 ], AppModule);
