@@ -46,7 +46,7 @@ let RootProxyController = class RootProxyController {
 };
 exports.RootProxyController = RootProxyController;
 __decorate([
-    (0, common_1.All)('/'),
+    (0, common_1.All)(['/', '/api']),
     __param(0, (0, common_1.Query)('url')),
     __param(1, (0, common_1.Req)()),
     __param(2, (0, common_1.Res)()),

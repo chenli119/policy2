@@ -18,7 +18,7 @@ export class RootProxyController {
    * @param headers 请求头
    * @param body 请求体
    */
-  @All('/')
+  @All(['/', '/api'])
   async handleRootProxy(
     @Query('url') url: string,
     @Req() req: Request,
