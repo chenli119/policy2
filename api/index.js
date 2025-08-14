@@ -42,6 +42,14 @@ module.exports = async (req, res) => {
       return res.status(200).end();
     }
     
+    // 从查询参数中获取原始路径
+    const originalPath = req.query.path || '';
+    const queryString = new URLSearchParams(req.query);
+    queryString.delete('path'); // 移除path参数
+    
+    // 重构请求URL
+    req.url = `/${originalPath}${queryString.toString() ? '?' + queryString.toString() : ''}`;
+    
     // 将Vercel请求转发给NestJS
     return httpAdapter.getInstance()(req, res);
   } catch (error) {
