@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ProxyController } from './proxy/proxy.controller';
 import { ProxyService } from './proxy/proxy.service';
+import { RootProxyController } from './root-proxy.controller';
 
 /**
  * 应用主模块
@@ -8,7 +9,7 @@ import { ProxyService } from './proxy/proxy.service';
  */
 @Module({
   imports: [],
-  controllers: [ProxyController],
+  controllers: [ProxyController, RootProxyController],
   providers: [ProxyService],
 })
 export class AppModule {}
