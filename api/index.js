@@ -1,59 +1,67 @@
-const { NestFactory } = require('@nestjs/core');
-const { AppModule } = require('../dist/src/app.module');
-
-let app;
+const axios = require('axios');
 
 /**
- * 初始化NestJS应用
- * @returns {Promise<any>} NestJS应用实例
- */
-async function createNestApplication() {
-  if (!app) {
-    app = await NestFactory.create(AppModule);
-    app.enableCors({
-      origin: '*',
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cache-Control']
-    });
-    // 注意：不要设置全局前缀，因为Vercel已经通过重写规则处理了路径
-    // app.setGlobalPrefix('api'); // 这会导致双重前缀 /api/api/
-    await app.init();
-  }
-  return app;
-}
-
-/**
- * Vercel Serverless Function处理器
+ * 简化的CORS代理Serverless Function
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
  * @returns {Promise<void>}
  */
 module.exports = async (req, res) => {
   try {
-    const nestApp = await createNestApplication();
-    const httpAdapter = nestApp.getHttpAdapter();
+    // 设置CORS头
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Cache-Control');
+    res.setHeader('Access-Control-Max-Age', '86400');
     
     // 处理预检请求
     if (req.method === 'OPTIONS') {
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Cache-Control');
-      res.setHeader('Access-Control-Max-Age', '86400');
       return res.status(200).end();
     }
     
-    // 从查询参数中获取原始路径
-    const originalPath = req.query.path || '';
-    const queryString = new URLSearchParams(req.query);
-    queryString.delete('path'); // 移除path参数
+    // 获取目标URL
+    const { url } = req.query;
     
-    // 重构请求URL
-    req.url = `/${originalPath}${queryString.toString() ? '?' + queryString.toString() : ''}`;
+    if (!url) {
+      return res.status(400).json({ 
+        error: 'URL parameter is required',
+        usage: 'Add ?url=<target_url> to your request'
+      });
+    }
     
-    // 将Vercel请求转发给NestJS
-    return httpAdapter.getInstance()(req, res);
+    // 准备请求头（过滤掉一些不需要的头）
+    const forwardHeaders = { ...req.headers };
+    delete forwardHeaders.host;
+    delete forwardHeaders['x-forwarded-for'];
+    delete forwardHeaders['x-forwarded-proto'];
+    delete forwardHeaders['x-vercel-id'];
+    
+    // 发送代理请求
+    const response = await axios({
+      method: req.method,
+      url: url,
+      headers: forwardHeaders,
+      data: req.body,
+      timeout: 10000, // 10秒超时
+      validateStatus: () => true // 接受所有状态码
+    });
+    
+    // 设置响应头
+    Object.entries(response.headers).forEach(([key, value]) => {
+      if (key.toLowerCase() !== 'content-encoding') {
+        res.setHeader(key, value);
+      }
+    });
+    
+    // 返回响应
+    res.status(response.status).json(response.data);
+    
   } catch (error) {
-    console.error('NestJS应用启动错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    console.error('代理请求错误:', error.message);
+    res.status(500).json({ 
+      error: '代理请求失败',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 };
