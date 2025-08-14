@@ -1,5 +1,5 @@
 const { NestFactory } = require('@nestjs/core');
-const { AppModule } = require('../dist/src/app.module');
+const { AppModule } = require('../dist/app.module');
 
 let app;
 
@@ -15,8 +15,6 @@ async function createNestApplication() {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cache-Control']
     });
-    // 注意：不要设置全局前缀，因为Vercel已经通过重写规则处理了路径
-    // app.setGlobalPrefix('api'); // 这会导致双重前缀 /api/api/
     await app.init();
   }
   return app;

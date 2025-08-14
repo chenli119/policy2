@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS 代理服务测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #005a87;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .example {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CORS 代理服务测试页面</h1>
+        
+        <div class="info result">
+            <strong>服务状态:</strong> ✅ 运行中
+            <br><strong>API 端点:</strong> /api/proxy
+            <br><strong>使用方法:</strong> /api/proxy?url=目标URL
+        </div>
+
+        <div class="test-section">
+            <h3>📋 快速测试</h3>
+            <p>输入要测试的 API URL：</p>
+            <input type="text" id="testUrl" placeholder="例如: https://api.github.com/users/octocat" value="https://api.github.com/users/octocat">
+            
+            <div>
+                <button onclick="testRequest('GET')">GET 请求</button>
+                <button onclick="testRequest('POST')">POST 请求</button>
+                <button onclick="testRequest('PUT')">PUT 请求</button>
+                <button onclick="testRequest('DELETE')">DELETE 请求</button>
+            </div>
+            
+            <div id="testResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 预设示例</h3>
+            <div class="example">
+                <strong>GitHub API 示例:</strong>
+                <br>原始 URL: https://api.github.com/users/octocat
+                <br>代理 URL: /api/proxy?url=https://api.github.com/users/octocat
+            </div>
+            
+            <button onclick="testExample('github')">测试 GitHub API</button>
+            <button onclick="testExample('httpbin')">测试 HTTPBin</button>
+            <button onclick="testExample('jsonplaceholder')">测试 JSONPlaceholder</button>
+            
+            <div id="exampleResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📖 使用说明</h3>
+            <p><strong>基本用法:</strong></p>
+            <code>fetch('/api/proxy?url=https://api.example.com/data')</code>
+            
+            <p><strong>POST 请求示例:</strong></p>
+            <code>
+fetch('/api/proxy?url=https://api.example.com/data', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ key: 'value' })
+})
+            </code>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        }
+
+        async function testRequest(method) {
+            const url = document.getElementById('testUrl').value;
+            if (!url) {
+                showResult('testResult', '请输入测试URL', true);
+                return;
+            }
+
+            try {
+                showResult('testResult', '请求中...', false);
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                if (method === 'POST' || method === 'PUT') {
+                    options.body = JSON.stringify({
+                        test: 'data',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+
+                const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`, options);
+                const data = await response.text();
+                
+                let result;
+                try {
+                    result = JSON.parse(data);
+                } catch {
+                    result = data;
+                }
+
+                showResult('testResult', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: result
+                }, !response.ok);
+            } catch (error) {
+                showResult('testResult', `错误: ${error.message}`, true);
+            }
+        }
+
+        async function testExample(type) {
+            const examples = {
+                github: 'https://api.github.com/users/octocat',
+                httpbin: 'https://httpbin.org/get',
+                jsonplaceholder: 'https://jsonplaceholder.typicode.com/posts/1'
+            };
+
+            const url = examples[type];
+            if (!url) return;
+
+            try {
+                showResult('exampleResult', '请求中...', false);
+                
+                const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                
+                showResult('exampleResult', {
+                    example: type,
+                    status: response.status,
+                    data: data
+                }, !response.ok);
+            } catch (error) {
+                showResult('exampleResult', `错误: ${error.message}`, true);
+            }
+        }
+
+        // 页面加载时显示服务信息
+        window.onload = function() {
+            console.log('🚀 CORS 代理服务测试页面已加载');
+            console.log('API 端点: /api/proxy?url=目标URL');
+        };
+    </script>
+</body>
+</html>
